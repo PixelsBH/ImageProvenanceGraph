@@ -11,9 +11,14 @@ A multimedia forensic framework for visual lineage analysis. This system compare
 Ensure Python 3.11+ is installed. Activate or create the virtual environment and install dependencies:
 
 ```bash
-# Create and activate virtual environment
+# Create virtual environment
 uv venv --python 3.11 .venv
+
+# Activate (Bash/Zsh):
 source .venv/bin/activate
+
+# Activate (Fish shell):
+source .venv/bin/activate.fish
 
 # Install required dependencies
 uv pip install -r requirements.txt
