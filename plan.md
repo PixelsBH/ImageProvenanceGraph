@@ -94,16 +94,16 @@ Also include a few unrelated images to check whether the system incorrectly conn
 - [x] Leave the direction unknown when there is not enough evidence.
 
 ### Step 5 — Build the interface
-- [ ] Create a simple Streamlit interface.
-- [ ] Allow users to provide a collection of images.
-- [ ] Display image details and similarity scores.
-- [ ] Show the generated graph and its connections.
+- [x] Create a simple Streamlit interface.
+- [x] Allow users to provide a collection of images.
+- [x] Display image details and similarity scores.
+- [x] Show the generated graph and its connections.
 
 ### Step 6 — Test and evaluate
-- [ ] Test on resized, cropped, compressed, and brightness-adjusted images.
-- [ ] Compare the generated graph with the known relationships.
-- [ ] Calculate precision, recall, and F1-score for predicted connections.
-- [ ] Record examples where the system succeeds or fails.
+- [x] Test on resized, cropped, compressed, and brightness-adjusted images.
+- [x] Compare the generated graph with the known relationships.
+- [x] Calculate precision, recall, and F1-score for predicted connections.
+- [x] Record examples where the system succeeds or fails.
 
 ## 7. Suggested Folder Structure
 

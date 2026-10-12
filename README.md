@@ -27,9 +27,26 @@ Generate test originals, transformed variants (resized, cropped, compressed, bri
 python scripts/generate_sample_data.py
 ```
 
-### 3. Read Images and Inspect Metadata (Step 2)
+### 3. Launch the Interactive Web Dashboard (Step 5)
 
-Inspect an image collection and display a formatted metadata table:
+Launch the Streamlit web application:
+
+```bash
+streamlit run app.py
+```
+
+The web dashboard allows you to:
+- Select sample images, upload custom files, or browse local directories.
+- Inspect metadata and image thumbnails in an interactive gallery.
+- Compare pairwise similarity with side-by-side evidence inspection.
+- Visualize and download the reconstructed provenance graph and edge list.
+- Evaluate reconstruction accuracy against ground truth with interactive metric cards.
+
+---
+
+## Command-Line Tools
+
+### 4. Read Images and Inspect Metadata (Step 2)
 
 ```bash
 # Inspect original images
@@ -39,31 +56,33 @@ python -m src.metadata data/originals
 python -m src.metadata data/originals data/variants -o outputs/metadata.csv
 ```
 
-### 4. Perceptual Hashing & Similarity (Step 3)
-
-Compute perceptual hashes (pHash, dHash, wHash, aHash) and calculate pairwise visual similarity:
+### 5. Perceptual Hashing & Similarity (Step 3)
 
 ```bash
 python -m src.hashing data/originals data/variants --top 15
 ```
 
-### 5. SIFT Feature Matching & Combined Similarity (Step 3)
-
-Extract local SIFT descriptors, execute Lowe's ratio test and RANSAC geometric verification, and compute combined similarity scores:
+### 6. SIFT Feature Matching & Combined Similarity (Step 3)
 
 ```bash
 python -m src.matching data/originals data/variants --threshold 0.35 -o outputs/pairwise_matches.csv
 ```
 
-### 6. Reconstruct Provenance Graph (Step 4)
-
-Construct a NetworkX directed graph, estimate parent-to-child lineage directions based on multi-factor forensic clues (resolution downsampling, field-of-view cropping, compression artifacts, EXIF timestamps), and export edge tables and visualizations:
+### 7. Reconstruct Provenance Graph (Step 4)
 
 ```bash
 python -m src.graph_builder data/originals data/variants --threshold 0.45 -g outputs/provenance_graph.png -o outputs/edges.csv
 ```
 
-### 7. Run Unit Tests
+### 8. Run Ground-Truth Evaluation (Step 6)
+
+Compare reconstructed graphs against known ground truth in `data/manifest.csv`:
+
+```bash
+python -m src.evaluation -m data/manifest.csv -d data/originals data/variants -t 0.45 -o outputs/evaluation_report.json
+```
+
+### 9. Run Test Suite
 
 Execute the comprehensive automated test suite with pytest:
 
@@ -77,12 +96,14 @@ pytest -v
 
 ```text
 ImageProvenanceGraph/
+├── app.py                # Streamlit web application dashboard (Step 5)
 ├── src/
 │   ├── __init__.py
-│   ├── metadata.py       # Image loading, validation, EXIF extraction, table display
-│   ├── hashing.py        # Perceptual hashing (pHash, dHash, wHash) and comparisons
-│   ├── matching.py       # SIFT feature extraction, RANSAC matching, combined scoring
-│   └── graph_builder.py  # NetworkX provenance graph, direction estimation, DAG pruning, plotting
+│   ├── metadata.py       # Image loading, validation, EXIF extraction, table display (Step 2)
+│   ├── hashing.py        # Perceptual hashing (pHash, dHash, wHash) and comparisons (Step 3)
+│   ├── matching.py       # SIFT feature extraction, RANSAC matching, combined scoring (Step 3)
+│   ├── graph_builder.py  # NetworkX provenance graph, direction estimation, DAG pruning (Step 4)
+│   └── evaluation.py     # Evaluation against ground truth: precision, recall, F1 (Step 6)
 ├── scripts/
 │   └── generate_sample_data.py # Synthetic dataset generator for testing
 ├── data/
@@ -93,12 +114,14 @@ ImageProvenanceGraph/
 │   ├── metadata.csv          # Exported metadata reports
 │   ├── pairwise_matches.csv  # SIFT + Hash pairwise similarity scores
 │   ├── edges.csv             # Directed provenance edges with forensic evidence
-│   └── provenance_graph.png  # Rendered graph visualization
+│   ├── provenance_graph.png  # Rendered graph visualization
+│   └── evaluation_report.json# Ground-truth evaluation metrics
 ├── tests/
 │   ├── test_metadata.py  # Unit tests for metadata and validation
 │   ├── test_hashing.py   # Unit tests for perceptual hashing
 │   ├── test_matching.py  # Unit tests for SIFT feature matching
-│   └── test_graph.py     # Unit tests for graph construction and direction estimation
+│   ├── test_graph.py     # Unit tests for graph construction and direction estimation
+│   └── test_evaluation.py# Unit tests for ground-truth evaluation
 ├── pytest.ini
 ├── requirements.txt
 ├── README.md
