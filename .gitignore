@@ -1,0 +1,19 @@
+# Virtual Environment
+.venv/
+venv/
+ENV/
+
+# Python cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Data and outputs (large generated files)
+outputs/
+*.egg-info/
+dist/
+build/
+.coverage
+htmlcov/
