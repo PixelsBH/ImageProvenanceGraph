@@ -34,6 +34,7 @@ from src.matching import (
     PairwiseMatchResult,
     compare_image_collection,
     compare_image_pair,
+    visualize_sift_matches,
 )
 from src.metadata import (
     ImageMetadata,
@@ -312,6 +313,22 @@ def main():
                         f"**SIFT Inliers:** `{comp_res.num_inliers}` | "
                         f"**Good Matches:** `{comp_res.num_good_matches}`"
                     )
+
+                    # Interactive SIFT Correspondence Visualizer
+                    st.markdown("#### 🎯 SIFT Inlier Geometric Correspondences")
+                    show_matches = st.checkbox("Render SIFT Keypoint Correspondence Lines", value=True)
+                    if show_matches:
+                        max_lines = st.slider("Max Match Lines", min_value=10, max_value=120, value=50, step=10)
+                        with st.spinner("Computing geometric correspondences..."):
+                            match_vis = visualize_sift_matches(m1.filepath, m2.filepath, max_matches=max_lines)
+                        if match_vis is not None:
+                            st.image(
+                                match_vis,
+                                caption=f"SIFT Keypoint Correspondences between {m1.filename} (left) and {m2.filename} (right). Vibrant green lines denote geometrically verified RANSAC inliers.",
+                                use_container_width=True,
+                            )
+                        else:
+                            st.info("Insufficient keypoint inliers to draw correspondence lines.")
 
     # TAB 3: PROVENANCE GRAPH
     with tab3:

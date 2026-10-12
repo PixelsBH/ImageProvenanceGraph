@@ -39,6 +39,7 @@ The web dashboard allows you to:
 - Select sample images, upload custom files, or browse local directories.
 - Inspect metadata and image thumbnails in an interactive gallery.
 - Compare pairwise similarity with side-by-side evidence inspection.
+- Render and inspect SIFT keypoint inlier correspondence lines (`cv2.drawMatches`) verified via RANSAC.
 - Visualize and download the reconstructed provenance graph and edge list.
 - Evaluate reconstruction accuracy against ground truth with interactive metric cards.
 

@@ -11,6 +11,7 @@ from src.matching import (
     compare_image_collection,
     compare_image_pair,
     match_sift_features,
+    visualize_sift_matches,
 )
 
 
@@ -102,3 +103,16 @@ def test_compare_image_collection(patterned_image: Path, scaled_image: Path, cro
     assert len(results) >= 2
     assert "Combined Score" in df.columns
     assert df["Combined Score"].iloc[0] > 0.5
+
+
+def test_visualize_sift_matches(patterned_image: Path, cropped_image: Path, tmp_path: Path):
+    vis = visualize_sift_matches(patterned_image, cropped_image, max_matches=30)
+    assert vis is not None
+    assert isinstance(vis, np.ndarray)
+    assert len(vis.shape) == 3
+    assert vis.shape[2] == 3  # RGB channels
+    assert vis.shape[1] > vis.shape[0]  # Side-by-side width > height
+
+    # Bad path should return None
+    bad_vis = visualize_sift_matches(patterned_image, tmp_path / "does_not_exist.png")
+    assert bad_vis is None

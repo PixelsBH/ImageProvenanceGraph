@@ -312,6 +312,92 @@ def compare_image_pair(
     )
 
 
+def visualize_sift_matches(
+    path1: Union[str, Path],
+    path2: Union[str, Path],
+    max_matches: int = 50,
+    ratio_threshold: float = 0.75,
+    ransac_threshold: float = 5.0,
+) -> Optional[np.ndarray]:
+    """Render side-by-side SIFT keypoint correspondence lines with RANSAC inliers.
+
+    Args:
+        path1: Path to first image.
+        path2: Path to second image.
+        max_matches: Maximum number of inlier lines to draw (avoids visual clutter).
+        ratio_threshold: Lowe's ratio test threshold.
+        ransac_threshold: RANSAC reprojection error threshold.
+
+    Returns:
+        RGB numpy array (H, W, 3) suitable for UI display or None if loading fails.
+    """
+    im1 = load_image(path1, to_rgb=True)
+    im2 = load_image(path2, to_rgb=True)
+    if im1 is None or im2 is None:
+        return None
+
+    arr1 = np.array(im1)
+    arr2 = np.array(im2)
+    gray1 = cv2.cvtColor(arr1, cv2.COLOR_RGB2GRAY)
+    gray2 = cv2.cvtColor(arr2, cv2.COLOR_RGB2GRAY)
+
+    sift = cv2.SIFT_create(nfeatures=2000)
+    kp1, des1 = sift.detectAndCompute(gray1, None)
+    kp2, des2 = sift.detectAndCompute(gray2, None)
+
+    if des1 is None or des2 is None or len(des1) < 2 or len(des2) < 2:
+        h1, w1 = arr1.shape[:2]
+        h2, w2 = arr2.shape[:2]
+        max_h = max(h1, h2)
+        pad1 = cv2.copyMakeBorder(arr1, 0, max_h - h1, 0, 0, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        pad2 = cv2.copyMakeBorder(arr2, 0, max_h - h2, 0, 0, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        return np.hstack([pad1, pad2])
+
+    bf = cv2.BFMatcher(cv2.NORM_L2)
+    raw_matches = bf.knnMatch(des1, des2, k=2)
+
+    good_matches = []
+    for match in raw_matches:
+        if len(match) == 2:
+            m, n = match
+            if m.distance < ratio_threshold * n.distance:
+                good_matches.append(m)
+
+    if len(good_matches) < 4:
+        h1, w1 = arr1.shape[:2]
+        h2, w2 = arr2.shape[:2]
+        max_h = max(h1, h2)
+        pad1 = cv2.copyMakeBorder(arr1, 0, max_h - h1, 0, 0, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        pad2 = cv2.copyMakeBorder(arr2, 0, max_h - h2, 0, 0, cv2.BORDER_CONSTANT, value=[0, 0, 0])
+        return np.hstack([pad1, pad2])
+
+    src_pts = np.float32([kp1[m.queryIdx].pt for m in good_matches]).reshape(-1, 1, 2)
+    dst_pts = np.float32([kp2[m.trainIdx].pt for m in good_matches]).reshape(-1, 1, 2)
+
+    H, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, ransac_threshold)
+    if mask is not None:
+        matches_mask = mask.ravel().tolist()
+    else:
+        matches_mask = [0] * len(good_matches)
+
+    # Subsample inliers evenly up to max_matches to keep visual lines clear
+    inlier_indices = [idx for idx, val in enumerate(matches_mask) if val == 1]
+    if len(inlier_indices) > max_matches:
+        step = max(1, len(inlier_indices) // max_matches)
+        selected_inliers = set(inlier_indices[::step][:max_matches])
+        matches_mask = [1 if idx in selected_inliers else 0 for idx in range(len(matches_mask))]
+
+    draw_params = dict(
+        matchColor=(0, 255, 0),         # Bright green for verified inliers
+        singlePointColor=None,
+        matchesMask=matches_mask,
+        flags=cv2.DrawMatchesFlags_NOT_DRAW_SINGLE_POINTS,
+    )
+
+    matched_img = cv2.drawMatches(arr1, kp1, arr2, kp2, good_matches, None, **draw_params)
+    return matched_img
+
+
 def compare_image_collection(
     file_paths: Sequence[Union[str, Path]],
     threshold: float = 0.0,
