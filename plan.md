@@ -82,16 +82,16 @@ Also include a few unrelated images to check whether the system incorrectly conn
 - [x] Display the image information in a table.
 
 ### Step 3 — Compare images
-- [ ] Calculate a perceptual hash for each image.
-- [ ] Compare hashes to find visually similar images.
-- [ ] Use OpenCV SIFT to compare local image features.
-- [ ] Combine the results into a simple similarity score.
+- [x] Calculate a perceptual hash for each image.
+- [x] Compare hashes to find visually similar images.
+- [x] Use OpenCV SIFT to compare local image features.
+- [x] Combine the results into a simple similarity score.
 
 ### Step 4 — Build the graph
-- [ ] Treat each image as a node.
-- [ ] Connect images whose similarity scores pass a chosen threshold.
-- [ ] Use known transformations and available clues to estimate edge direction.
-- [ ] Leave the direction unknown when there is not enough evidence.
+- [x] Treat each image as a node.
+- [x] Connect images whose similarity scores pass a chosen threshold.
+- [x] Use known transformations and available clues to estimate edge direction.
+- [x] Leave the direction unknown when there is not enough evidence.
 
 ### Step 5 — Build the interface
 - [ ] Create a simple Streamlit interface.

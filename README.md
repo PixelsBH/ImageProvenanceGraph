@@ -39,9 +39,33 @@ python -m src.metadata data/originals
 python -m src.metadata data/originals data/variants -o outputs/metadata.csv
 ```
 
-### 4. Run Unit Tests
+### 4. Perceptual Hashing & Similarity (Step 3)
 
-Execute the automated test suite with pytest:
+Compute perceptual hashes (pHash, dHash, wHash, aHash) and calculate pairwise visual similarity:
+
+```bash
+python -m src.hashing data/originals data/variants --top 15
+```
+
+### 5. SIFT Feature Matching & Combined Similarity (Step 3)
+
+Extract local SIFT descriptors, execute Lowe's ratio test and RANSAC geometric verification, and compute combined similarity scores:
+
+```bash
+python -m src.matching data/originals data/variants --threshold 0.35 -o outputs/pairwise_matches.csv
+```
+
+### 6. Reconstruct Provenance Graph (Step 4)
+
+Construct a NetworkX directed graph, estimate parent-to-child lineage directions based on multi-factor forensic clues (resolution downsampling, field-of-view cropping, compression artifacts, EXIF timestamps), and export edge tables and visualizations:
+
+```bash
+python -m src.graph_builder data/originals data/variants --threshold 0.45 -g outputs/provenance_graph.png -o outputs/edges.csv
+```
+
+### 7. Run Unit Tests
+
+Execute the comprehensive automated test suite with pytest:
 
 ```bash
 pytest -v
@@ -55,7 +79,10 @@ pytest -v
 ImageProvenanceGraph/
 ├── src/
 │   ├── __init__.py
-│   └── metadata.py       # Image loading, validation, EXIF extraction, and table display
+│   ├── metadata.py       # Image loading, validation, EXIF extraction, table display
+│   ├── hashing.py        # Perceptual hashing (pHash, dHash, wHash) and comparisons
+│   ├── matching.py       # SIFT feature extraction, RANSAC matching, combined scoring
+│   └── graph_builder.py  # NetworkX provenance graph, direction estimation, DAG pruning, plotting
 ├── scripts/
 │   └── generate_sample_data.py # Synthetic dataset generator for testing
 ├── data/
@@ -63,9 +90,15 @@ ImageProvenanceGraph/
 │   ├── variants/         # Edited/transformed variants
 │   └── manifest.csv      # Ground-truth transformation log
 ├── outputs/
-│   └── metadata.csv      # Exported metadata reports
+│   ├── metadata.csv          # Exported metadata reports
+│   ├── pairwise_matches.csv  # SIFT + Hash pairwise similarity scores
+│   ├── edges.csv             # Directed provenance edges with forensic evidence
+│   └── provenance_graph.png  # Rendered graph visualization
 ├── tests/
-│   └── test_metadata.py  # Unit tests for metadata and validation
+│   ├── test_metadata.py  # Unit tests for metadata and validation
+│   ├── test_hashing.py   # Unit tests for perceptual hashing
+│   ├── test_matching.py  # Unit tests for SIFT feature matching
+│   └── test_graph.py     # Unit tests for graph construction and direction estimation
 ├── pytest.ini
 ├── requirements.txt
 ├── README.md
