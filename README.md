@@ -8,21 +8,25 @@ A multimedia forensic framework for visual lineage analysis. This system compare
 
 ### 1. Environment Setup
 
-Ensure Python 3.11+ is installed. Activate or create the virtual environment and install dependencies:
+Ensure Python 3.11+ is installed. Activate or create the virtual environment and install dependencies. On Windows use the py launcher and the venv module:
 
-```bash
-# Create virtual environment
-uv venv --python 3.11 .venv
+```powershell
+# Create virtual environment (replace 3.11 with an installed 3.x if needed)
+py -3.11 -m venv .venv
+# or, if you have a newer installed Python (for example 3.13):
+py -3.13 -m venv .venv
 
-# Activate (Bash/Zsh):
-source .venv/bin/activate
+# Activate (PowerShell):
+.\.venv\Scripts\Activate.ps1
 
-# Activate (Fish shell):
-source .venv/bin/activate.fish
+# Activate (Command Prompt):
+.\.venv\Scripts\activate.bat
 
 # Install required dependencies
-uv pip install -r requirements.txt
+python -m pip install -r requirements.txt
 ```
+
+If you prefer the cross-platform "uv" wrapper shown below, install it and run the original commands; on Windows prefer activating the PowerShell/CMD scripts shown above after creating the environment.
 
 ### 2. Generate Sample Dataset
 
